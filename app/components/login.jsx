@@ -12,7 +12,10 @@ export default function Login(){
     const handleSubmit = (e) => {
         e.preventDefault();
 
-        if(usuario === "kevin" && clave === "password"){
+        if(!usuario.trim() && !clave.trim()){
+            alert("Por favor complete los espacios.");
+        }
+        else if(usuario === "kevin" && clave === "password"){
             router.push("/lobby");
         }else{
             alert("Usuario y contraseña incorrectas, por favor inténtelo denuevo.");
