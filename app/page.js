@@ -1,13 +1,23 @@
-// import TarjetaDatosUsuario from "./components/contador";
-// import Contador from "./components/contador";
+'use client';
+import { useEffect } from "react";
+import { useRouter } from "next/navigation";
 
-import Login from "./components/login"
 
 export default function Home() {
+  const router = useRouter();
+
+  useEffect(() => {
+    const token = localStorage.getItem('token');
+    if (token) {
+      // Si hay token, vamos al perfil
+      router.push('/profile');
+    } else {
+      // Si no hay token, vamos al login
+      router.push('/login');
+    }
+  }, [router]);
   return(
-    <main className=" flex justify-center items-center h-screen bg-gray-100 gap-8">
-      <Login/>
-    </main>
+    <p>Cargando...</p>
   )
    
 }
