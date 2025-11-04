@@ -10,7 +10,7 @@ export default function Home() {
     const token = localStorage.getItem('token');
     if (token) {
       // Si hay token, vamos al perfil
-      router.push('/profile');
+      router.push('/dashboard/profile');
     } else {
       // Si no hay token, vamos al login
       router.push('/login');
