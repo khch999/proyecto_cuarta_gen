@@ -1,5 +1,6 @@
 'use client';
 import { useEffect, useState } from 'react';
+import { jwtDecode } from "jwt-decode";
 import Navbar from '@/app/components/navbar';
 
 export default function UsersPage() {
@@ -9,15 +10,21 @@ export default function UsersPage() {
   const [loading, setLoading] = useState(true);
   const [selectedUser, setSelectedUser] = useState(null);
   const [showModal, setShowModal] = useState(false);
+  const [role, setRole] = useState(null);
 
   const fetchUsers = async (page = 1) => {
     setLoading(true);
+    const token = localStorage.getItem('token');
     try {
       const url = search
-        ? `http://localhost:4000/api/v1/users?search=${search}`
-        : `http://localhost:4000/api/v1/users?page=${page}&limit=5`;
+        ? `${process.env.NEXT_PUBLIC_API_URL}/api/v1/users?search=${search}`
+        : `${process.env.NEXT_PUBLIC_API_URL}/api/v1/users?page=${page}&limit=5`;
 
-      const res = await fetch(url);
+      const res = await fetch(url, {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      });
       const data = await res.json();
 
       if (data.success) {
@@ -35,13 +42,25 @@ export default function UsersPage() {
     fetchUsers();
   }, [search]);
 
+  useEffect(() => {
+    const token = localStorage.getItem('token');
+
+    if (token) {
+      const decoded = jwtDecode(token);
+      setRole(decoded.rol);
+    }
+  },[]);
+
   const handleDelete = async (id) => {
     const confirmar = window.confirm('¿Quieres eliminar este usuario?');
     if (!confirmar) return;
-
+    const token = localStorage.getItem('token');
     try {
-      const res = await fetch(`http://localhost:4000/api/v1/users/${id}`, {
+      const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/v1/users/${id}`, {
         method: 'DELETE',
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
       });
       const data = await res.json();
 
@@ -62,11 +81,14 @@ export default function UsersPage() {
   };
 
   const handleUpdate = async () => {
+    const token = localStorage.getItem('token');
     try {
-      const res = await fetch(`http://localhost:4000/api/v1/users/${selectedUser.id}`, {
+      const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/v1/users/${selectedUser.id}`, {
         method: 'PUT',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(selectedUser),
+        headers: { 'Content-Type': 'application/json',
+        Authorization: `Bearer ${token}`,
+        },
+        body: JSON.stringify(selectedUser)
       });
 
       const data = await res.json();
@@ -128,6 +150,8 @@ export default function UsersPage() {
                   <td className="p-2 border">{u.email}</td>
                   <td className="p-2 border">{u.telefono}</td>
                   <td className="p-2 border flex justify-center gap-2">
+                  {role === "admin" && (
+                    <>
                     <button
                       onClick={() => handleEdit(u)}
                       className="bg-yellow-400 text-white px-2 py-1 rounded hover:bg-yellow-500"
@@ -140,7 +164,9 @@ export default function UsersPage() {
                     >
                       Eliminar
                     </button>
-                  </td>
+                    </>                  
+                  )}
+                 </td>
                 </tr>
               ))}
             </tbody>

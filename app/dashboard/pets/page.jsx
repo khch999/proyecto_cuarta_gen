@@ -1,5 +1,9 @@
 'use client';
 import { useEffect, useState } from 'react';
+import { jwtDecode } from "jwt-decode";
+import PetsTable from './components/PetsTable';
+import PetsFormModal from './components/PetsFormModal';
+import MedicalModal from './components/MedicalModal';
 import Navbar from '@/app/components/navbar';
 
 export default function PetsPage() {
@@ -7,11 +11,23 @@ export default function PetsPage() {
   const [loading, setLoading] = useState(true);
   const [selectedPet, setSelectedPet] = useState(null);
   const [showModal, setShowModal] = useState(false);
+  const [role, setRole] = useState(null);
+  const [showFormModal, setShowFormModal] = useState(false);
+  const [isEditing, setIsEditing] = useState(false);
+
+  const [formData, setFormData] = useState({
+    nombre: "",
+    especie: "",
+    raza: "",
+    edad: "",
+    historial_medico: "",
+    propietario_id: ""
+  });
 
   const fetchPets = async () => {
     setLoading(true);
     try {
-      const res = await fetch(`http://localhost:4000/api/v1/pets`);
+      const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/v1/pets`);
       const data = await res.json();
 
       if (data.success) {
@@ -30,7 +46,12 @@ export default function PetsPage() {
 
   const handleViewMedical = async (id) => {
     try {
-      const res = await fetch(`http://localhost:4000/api/v1/pets/${id}`);
+      const token = localStorage.getItem('token');
+      const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/v1/pets/${id}`,{
+        headers: {
+          "Authorization": `Bearer ${token}`
+        },
+      });
       const data = await res.json();
 
       if (data.success) {
@@ -49,8 +70,100 @@ export default function PetsPage() {
     setShowModal(false);
   };
 
+  const handleCreate = () => {
+    setIsEditing(false);
+    setFormData({
+      nombre: "",
+      especie: "",
+      raza: "",
+      edad: "",
+      historial_medico: "",
+      propietario_id: ""
+    });
+    setShowFormModal(true);
+  }
+
+  const handleEdit = (pet) => {
+    setIsEditing(true);
+    setFormData({
+      nombre: pet.nombre,
+      especie: pet.especie,
+      raza: pet.raza,
+      edad: pet.edad,
+      historial_medico: pet.historial_medico,
+      propietario_id: pet.propietario_id
+    });
+    setSelectedPet(pet);
+    setShowFormModal(true);
+  };
+
+  const handleDelete = async (id) => {
+    const confirmDelete = confirm("¿Quires eliminar esta mascota?");
+    if (!confirmDelete) return;
+    try {
+      const token = localStorage.getItem("token");
+      const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/v1/pets/${id}`,{
+        method: "DELETE",
+        headers: {
+          "Authorization": `Bearer ${token}`
+        }
+      });
+      const data = await res.json();
+      if (data.success) {
+        fetchPets(); 
+      }else{
+        alert(data.message);
+      }
+    } catch (error) {
+      console.error("Error al eliminar mascota:", error);
+    }
+  }
+  const handleChange = (e) => {
+    setFormData({
+      ...formData,
+      [e.target.name]: e.target.value
+    });
+  }; 
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+    try {
+      const token = localStorage.getItem('token');
+      const url = isEditing
+      ? `${process.env.NEXT_PUBLIC_API_URL}/api/v1/pets/${selectedPet.id}`
+      : `${process.env.NEXT_PUBLIC_API_URL}/api/v1/pets`;
+
+      const method = isEditing ? "PUT" : "POST";
+      console.log("Datos enviados:", formData);
+      const res = await fetch(url, {
+        method,
+        headers: {
+          "Content-Type": "application/json",
+          "Authorization": `Bearer ${token}`
+        },
+        body: JSON.stringify(formData)
+      });
+      const data = await res.json();
+      if (data.success) {
+        setShowFormModal(false);
+        fetchPets();
+      }else{
+        alert(data.message);
+      }
+    } catch (error) {
+      console.error("Error guardando datos de mascota:", error);
+    }
+  };
+
   useEffect(() => {
     fetchPets();
+  }, []);
+
+  useEffect(() => {
+    const token = localStorage.getItem('token');
+    if (token) {
+      const decoded = jwtDecode(token);
+      setRole(decoded.rol);
+    }
   }, []);
 
   return (
@@ -64,79 +177,33 @@ export default function PetsPage() {
         {loading ? (
           <p>Cargando mascotas...</p>
         ) : pets.length > 0 ? (
-          <div className="overflow-x-auto">
-            <table className="w-full border">
-              <thead>
-                <tr className="bg-gray-100">
-                  <th className="p-2 border">ID</th>
-                  <th className="p-2 border">Nombre</th>
-                  <th className="p-2 border">Especie</th>
-                  <th className="p-2 border">Raza</th>
-                  <th className="p-2 border">Edad</th>
-                  <th className="p-2 border">Historial</th>
-                  <th className="p-2 border">Acciones</th>
-                </tr>
-              </thead>
-              <tbody>
-                {pets.map((pet) => (
-                  <tr key={pet.id} className="text-center border-t">
-                    <td className="p-2 border">{pet.id}</td>
-                    <td className="p-2 border">{pet.nombre}</td>
-                    <td className="p-2 border">{pet.especie}</td>
-                    <td className="p-2 border">{pet.raza}</td>
-                    <td className="p-2 border">{pet.edad}</td>
-                    <td className="p-2 border">{pet.historial_medico}</td>
-                    <td className="p-2 border">
-                      <button
-                        onClick={() => handleViewMedical(pet.id)}
-                        className="bg-blue-500 text-white px-3 py-1 rounded hover:bg-blue-600"
-                      >
-                        Ver ficha médica
-                      </button>
-                    </td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
-          </div>
+          <PetsTable
+          pets= {pets}
+          role={role}
+          onEdit={handleEdit}
+          onDelete={handleDelete}
+          onView={handleViewMedical}
+          onCreate={handleCreate}
+          />
         ) : (
           <p>No hay mascotas registradas</p>
         )}
 
+        {showFormModal && (
+          <PetsFormModal
+            isEditing={isEditing}
+            formData={formData}
+            onChange={handleChange}
+            onSubmit={handleSubmit}
+            onClose={() => setShowFormModal(false)}
+          />
+)}
         {/* Modal Ficha Médica */}
         {showModal && selectedPet && (
-          <div className="fixed inset-0 bg-black bg-opacity-50 flex justify-center items-center z-50 p-4">
-            <div className="bg-white rounded-lg shadow-lg max-w-3xl w-full p-6 overflow-auto">
-              <h2 className="text-xl font-semibold mb-4">Ficha Médica</h2>
-              <div className="flex flex-col md:flex-row gap-6 mb-4">
-                {/* Datos Mascota */}
-                <div className="flex-1">
-                  <p><strong>Nombre Mascota:</strong> {selectedPet.nombre_mascota}</p>
-                  <p><strong>Especie:</strong> {selectedPet.especie}</p>
-                  <p><strong>Raza:</strong> {selectedPet.raza}</p>
-                  <p><strong>Edad:</strong> {selectedPet.edad}</p>
-                </div>
-                {/* Datos Propietario */}
-                <div className="flex-1">
-                  <p><strong>Nombre Propietario:</strong> {selectedPet.nombre_propietario}</p>
-                  <p><strong>Email:</strong> {selectedPet.email}</p>
-                  <p><strong>Teléfono:</strong> {selectedPet.telefono}</p>
-                </div>
-              </div>
-              {/* Historial Médico */}
-              <div className="mb-4">
-                <p><strong>Historial Médico:</strong> {selectedPet.historial_medico}</p>
-              </div>
-              <div className="flex justify-end">
-                <button
-                  onClick={handleCloseModal}
-                  className="px-4 py-2 bg-gray-300 rounded hover:bg-gray-400"
-                >
-                  Cerrar
-                </button>
-              </div>
-            </div>
-          </div>
+          <MedicalModal
+            pet={selectedPet}
+            onClose={handleCloseModal}
+          />
         )}
       </div>
     </div>

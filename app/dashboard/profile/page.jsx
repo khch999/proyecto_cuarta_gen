@@ -18,7 +18,7 @@ export default function ProfilePage(){
       }
 
 try {                                                            //authRoutes router.get('/profile', authenticateToken, AuthController.getProfile);
-        const res = await fetch("http://localhost:4000/api/v1/auth/profile", {
+        const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/v1/auth/profile`, {
           headers: { Authorization: `Bearer ${token}` }
         });
 
@@ -44,7 +44,7 @@ try {                                                            //authRoutes ro
     const token = localStorage.getItem('token');
     if (token) {
     try {                                           //authController.js router.post('/logout', authenticateToken, AuthController.logout);
-        await fetch("http://localhost:4000/api/v1/auth/logout", {
+        await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/v1/auth/logout`, {
           method: 'POST',
           headers: { Authorization: `Bearer ${token}` }
         });

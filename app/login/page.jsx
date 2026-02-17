@@ -12,8 +12,8 @@ export default function LoginPage(){
     const handleSubmit = async (e) =>{
         e.preventDefault();
 
-        try{                                                           //authRoutes  router.post(/login)
-            const res = await fetch("http://localhost:4000/api/v1/auth/login",{
+        try{                                                          //authRoutes  router.post(/login)
+            const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/v1/auth/login`,{
                 method: 'POST',
                 headers: {"Content-Type":"application/json"}, //Accept:'application/json'
                 body: JSON.stringify({email,password}),
