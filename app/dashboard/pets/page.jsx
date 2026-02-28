@@ -98,7 +98,7 @@ export default function PetsPage() {
   };
 
   const handleDelete = async (id) => {
-    const confirmDelete = confirm("¿Quires eliminar esta mascota?");
+    const confirmDelete = confirm("¿Queires eliminar esta mascota?");
     if (!confirmDelete) return;
     try {
       const token = localStorage.getItem("token");

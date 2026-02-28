@@ -13,7 +13,8 @@ export default function Navbar(){
   const links =[
     { href: "/dashboard/profile", label: "Perfil" },
     { href: "/dashboard/users", label: "Usuarios" },
-    { href: "/dashboard/pets", label: "Masc🐶tas" },
+    { href: "/dashboard/pets", label: "Mascotas" },
+    { href: "/dashboard/dates", label: "Citas" },
   ];
   return(
    <header className="w-full bg-white shadow-md px-6 py-3 flex items-center justify-between">

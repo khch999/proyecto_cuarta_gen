@@ -25,9 +25,9 @@ export default function LoginPage(){
             setError(data.message || 'Error al iniciar seción.');
             return;
         }
-        //guardo el token con localStorage.setItem(key,value)  {data:{token}}
+        //guardar el token con localStorage.setItem(key,value)  {data:{token}}
         localStorage.setItem('token', data.data.token);// data.data.token
-        //
+        
         router.push('/dashboard/profile');
         }catch(err){
             setError('Error de conexión con el server.');
@@ -41,14 +41,14 @@ export default function LoginPage(){
     <img
       src="https://img.freepik.com/iconos-gratis/candado_318-790509.jpg"
       alt="Candado"
-      className="w-24 h-24 rounded-full object-cover border-4 border-blue-300 shadow-md mb-2"
+      className="w-55 h-24 rounded-full object-cover border-4 border-blue-300 shadow-md mb-2"
     />
 
     <h2 className="text-2xl font-bold">Login</h2>
 
     <form
       onSubmit={handleSubmit}
-      className="flex flex-col gap-3 w-72 border border-gray-300 p-6 rounded-xl shadow-lg bg-white"
+      className="flex flex-col gap-3 w-85% border border-gray-300 p-10 rounded-xl shadow-lg bg-white"
     >
       <input
         type="email"
@@ -86,8 +86,5 @@ export default function LoginPage(){
 
     {error && <p className="text-red-500">{error}</p>}
   </div>
-);
-
-
-    
+);    
 }

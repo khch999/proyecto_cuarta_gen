@@ -5,18 +5,18 @@ export default function MedicalModal({pet, onClose}){
                 <h2 className="text-xl font-semibold mb-4">Ficha Médica</h2>
                 <div className="flex flex-col md:flex-row gap-6 mb-4">
                     <div className="flex-1">
-                        <p><strong>Nombre Mascota:</strong>{pet.nombre}</p>
-                        <p><strong>Especie:</strong>{pet.especie}</p>
-                        <p><strong>Raza:</strong>{pet.raza}</p>
-                        <p><strong>Edad:</strong>{pet.edad}</p>
+                        <p><strong>Nombre Mascota: </strong> {pet.nombre} </p>
+                        <p><strong>Especie: </strong>{pet.especie}</p>
+                        <p><strong>Raza: </strong>{pet.raza}</p>
+                        <p><strong>Edad: </strong>{pet.edad}</p>
                     </div>
                     <div className="flex-1">
-                        <p><strong>Nombre Propietario:</strong> {pet.nombre_propietario}</p>
-                        <p><strong>Email:</strong> {pet.email}</p>
-                        <p><strong>Teléfono:</strong> {pet.telefono}</p>
+                        <p><strong>Nombre Propietario: </strong> {pet.nombre_propietario}</p>
+                        <p><strong>Email: </strong> {pet.email}</p>
+                        <p><strong>Teléfono: </strong> {pet.telefono}</p>
                     </div>
                     <div className="mb-4">
-                        <p><strong>Historial Médico:</strong>{pet.historial_medico}</p>
+                        <p><strong>Historial Médico: </strong>{pet.historial_medico}</p>
                     </div>
                     <div className="flex justify-end">
                         <button

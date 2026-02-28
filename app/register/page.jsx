@@ -99,14 +99,5 @@ export default function RegisterPage(){
 
     {error && <p className="text-red-500 mt-3">{error}</p>}
   </div>
-);
-
-
-
-        
-
-
-
-
-    
+);    
 }
